@@ -59,34 +59,39 @@ botonAgregar.addEventListener("click", function() {
 let botonBuscar = document.getElementById("btnBuscar");
 
 botonBuscar.addEventListener("click", function() {
-    let nombreBuscado = document.getElementById("buscarGato")
+    let nombreABuscar = document.getElementById("buscarGato")
         .value.trim().toLowerCase();
 
-    let resultado = document.getElementById("resultadoBusqueda");
-    resultado.textContent = "";
+    let espacioBusqueda = document.getElementById("resultadoBusqueda");
+    espacioBusqueda.textContent = "";
 
-    if (nombreBuscado === "") {
-        resultado.textContent = "Escribe el nombre del gato.";
+    if (nombreABuscar === "") {
+        espacioBusqueda.textContent = "Escribe el nombre del michi que buscas.";
         return;
     }
 
-    let gatosEncontrados = gatos.filter(function(gato) {
-        return gato.nombre.trim().toLowerCase() === nombreBuscado;
+    let michisEncontrados = gatos.filter(function(gato) {
+        let nombreDelMichi = gato.nombre.toLowerCase();
+
+        return nombreDelMichi.includes(nombreABuscar);
     });
 
-    if (gatosEncontrados.length === 0) {
-        resultado.textContent = "No se encontró ese gato.";
+    if (michisEncontrados.length === 0) {
+        espacioBusqueda.textContent = "No encontramos michis con ese nombre.";
         return;
     }
 
-    gatosEncontrados.forEach(function(gato) {
-        let parrafo = document.createElement("p");
+    espacioBusqueda.textContent =
+        "Gatos encontrados: " + michisEncontrados.length;
 
-        parrafo.textContent =
-            gato.nombre + " - " +
-            gato.color + " - " +
-            gato.descripcion;
+    michisEncontrados.forEach(function(gato) {
+        let detalleGato = document.createElement("p");
 
-        resultado.appendChild(parrafo);
+        detalleGato.textContent =
+            "Nombre: " + gato.nombre +
+            " | Color: " + gato.color +
+            " | Descripción: " + gato.descripcion;
+
+        espacioBusqueda.appendChild(detalleGato);
     });
 });
