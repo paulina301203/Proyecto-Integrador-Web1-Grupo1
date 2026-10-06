@@ -55,3 +55,38 @@ botonAgregar.addEventListener("click", function() {
     gatos.push(otroGato);
     mostrarGatos();
 });
+
+let botonBuscar = document.getElementById("btnBuscar");
+
+botonBuscar.addEventListener("click", function() {
+    let nombreBuscado = document.getElementById("buscarGato")
+        .value.trim().toLowerCase();
+
+    let resultado = document.getElementById("resultadoBusqueda");
+    resultado.textContent = "";
+
+    if (nombreBuscado === "") {
+        resultado.textContent = "Escribe el nombre del gato.";
+        return;
+    }
+
+    let gatosEncontrados = gatos.filter(function(gato) {
+        return gato.nombre.trim().toLowerCase() === nombreBuscado;
+    });
+
+    if (gatosEncontrados.length === 0) {
+        resultado.textContent = "No se encontró ese gato.";
+        return;
+    }
+
+    gatosEncontrados.forEach(function(gato) {
+        let parrafo = document.createElement("p");
+
+        parrafo.textContent =
+            gato.nombre + " - " +
+            gato.color + " - " +
+            gato.descripcion;
+
+        resultado.appendChild(parrafo);
+    });
+});
