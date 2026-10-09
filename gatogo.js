@@ -42,6 +42,7 @@ botonAgregar.addEventListener("click", function () {
   let color = document.getElementById("colorGato").value;
   let descripcion = document.getElementById("descripcionGato").value;
 
+  //Validacion para que no existan gatos sin nombre ya que el buscar gatos esta relacionado con el nombre
   if (nombre === ``) {
     alert(`Ingrese el nombre del gato`);
     return;
