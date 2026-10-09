@@ -42,6 +42,11 @@ botonAgregar.addEventListener("click", function () {
   let color = document.getElementById("colorGato").value;
   let descripcion = document.getElementById("descripcionGato").value;
 
+  if (nombre === ``) {
+    alert(`Ingrese el nombre del gato`);
+    return;
+  }
+
   let otroGato = {
     nombre: nombre,
     color: color,
