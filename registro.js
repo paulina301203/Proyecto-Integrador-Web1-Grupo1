@@ -27,21 +27,9 @@ let usuariosRegistrados = [
   },
 ];
 
-let usuarioNuevo = {
-    idUsuario: `usuario2`,
-    nombre: `Paulina`,
-    apellido: `Morales`,
-    email: `paulinamorales@ejemplo.com`,
-    celular: `1233456348`,
-    contrasena: `123456789`,
-};
-
-usuariosRegistrados.push(usuarioNuevo);
-console.log(usuariosRegistrados);
-
 let btnRegistrarUsuarios = document.getElementById(`btnRegistrarUsuario`);
 
-btnAgregarUsuarios.addEventListener("click", function () {
+btnRegistrarUsuarios.addEventListener("click", function () {
   let idUsuario = document
     .getElementById("idUsuario")
     .value.trim()
@@ -67,20 +55,45 @@ btnAgregarUsuarios.addEventListener("click", function () {
     contrasena === ``
   ) {
     alert(
-      `Los campos Usuario, Nombre, Apellido, Email y Contraseña son obligatorios`
+      `Los campos Usuario, Nombre, Apellido, Email y Contraseña son obligatorios`,
     );
     return;
   }
 
-  //Segunda validacion en el correo 
-  if ( !email.includes('@') || !email.includes(`.com`) {
+  //Segunda validacion en el correo
+  if (!email.includes("@") || !email.includes(`.com`)) {
     alert(`El correo electronico debe tener un dominio como @gmail.com u otro`);
     return;
   }
 
-// Minimo de carateres en contrasena
-if ( contrasena.length <= 6 ) {
-    alert('La contrasena debe tener minimo 6 caracteres')
-};
+  // Minimo de carateres en contrasena
+  if (contrasena.length < 6) {
+    alert("La contrasena debe tener minimo 6 caracteres");
+    return;
+  }
 
+  // Que no tenga usuarios repetidos validando que no exista el id y el correo
+  let usuariosrepetidos = usuariosRegistrados.some(function (usuarioNuevo) {
+    return usuarioNuevo.idUsuario === idUsuario || usuarioNuevo.email === email;
+  });
+
+  if (usuariosrepetidos === true) {
+    alert(
+      `Ya existe un usuario registrado con ese usuario o ese correo electrónico`,
+    );
+    return;
+  }
+
+  let usuarioNuevo = {
+    idUsuario: idUsuario,
+    nombre: nombre,
+    apellido: apellido,
+    email: email,
+    celular: celular,
+    contrasena: contrasena,
+  };
+
+  usuariosRegistrados.push(usuarioNuevo);
+  console.log(usuariosRegistrados);
+  alert("Se creo el nuevo usuario con exito");
 });
