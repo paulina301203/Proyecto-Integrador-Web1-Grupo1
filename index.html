@@ -1,45 +1,48 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GatoGo</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <h1> GatoGo</h1>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="html" href="Registro.html">
+  </head>
+  <body>
+    <h1>GatoGo</h1>
 
     <!--FORMULARIO PARA REGISTRAR UN GATO -->
+    <nav class="menu">
+      <ul>
+        <li><a href="#">Iniciar sesión</a></li>
+        <li><a href="Registro.html">Registro Usuarios</a></li>
+        <li><a href="#">Gestión Gatos</a></li>
+      </ul>
+    </nav>
 
     <h2>Registrar gato</h2>
     <label>Nombre:</label>
-    <input type="text" id="nombreGato">
+    <input type="text" id="nombreGato" />
 
     <label>Color:</label>
-    <input type="text" id="colorGato">
+    <input type="text" id="colorGato" />
 
     <label>Descripción:</label>
-    <input type="text" id="descripcionGato">
+    <input type="text" id="descripcionGato" />
 
     <button id="btnAgregar">Agregar gato</button>
-
 
     <!-- RESULTADOS -->
 
     <h2>Gatos registrados</h2>
-    <div id="resultadoRegistro">Registros </div>
-
+    <div id="resultadoRegistro">Registros</div>
 
     <!-- BUSCAR GATO -->
 
     <h2>Buscar gato</h2>
-    <input type="text" id="buscarGato">
+    <input type="text" id="buscarGato" />
     <button id="btnBuscar">Buscar</button>
-    <div id="resultadoBusqueda">
-        Resultado de la Busqueda
-    </div>
-
+    <div id="resultadoBusqueda">Resultado de la Busqueda</div>
 
     <script src="gatogo.js"></script>
-</body>
+  </body>
 </html>

@@ -95,3 +95,4 @@ botonBuscar.addEventListener("click", function() {
         espacioBusqueda.appendChild(detalleGato);
     });
 });
+
