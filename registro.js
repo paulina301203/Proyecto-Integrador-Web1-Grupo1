@@ -41,10 +41,7 @@ btnRegistrarUsuarios.addEventListener("click", function () {
     .value.trim()
     .toLowerCase();
   let celular = document.getElementById("celularUsuario").value;
-  let contrasena = document
-    .getElementById("contrasenaUsuario")
-    .value.trim()
-    .toLowerCase();
+  let contrasena = document.getElementById("contrasenaUsuario").value.trim();
 
   //Validacion de campos obligatorios para que no tenga campos vacios en los
   if (
