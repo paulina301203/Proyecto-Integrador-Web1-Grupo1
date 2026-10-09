@@ -1,58 +1,86 @@
 let usuariosRegistrados = [
-    {
-        idUsuario: `leon123`,
-        nombre: `Leon`,
-        apellido: `Perez`,
-        email: `leonperez@ejemplo.com`,
-        celular: `3001234567`,
-        contrasena: `12345670`      
-    },
+  {
+    idUsuario: `leon123`,
+    nombre: `Leon`,
+    apellido: `Perez`,
+    email: `leonperez@ejemplo.com`,
+    celular: `3001234567`,
+    contrasena: `12345670`,
+  },
 
-    {
-        idUsuario: `lobo43`,
-        nombre: `Camilo`,
-        apellido: `Ramirez`,
-        email: `loboramirez@ejemplo.com`,
-        celular: ``,
-        contrasena: `1234567`      
-    },   
-    
-    {
-        idUsuario: `Usuario1`,
-        nombre: `Daniela`,
-        apellido: `Hernandez`,
-        email: `danielahernandez@ejemplo.com`,
-        celular: `123345634`,
-        contrasena: `12345678`      
-    },    
+  {
+    idUsuario: `lobo43`,
+    nombre: `Camilo`,
+    apellido: `Ramirez`,
+    email: `loboramirez@ejemplo.com`,
+    celular: ``,
+    contrasena: `1234567`,
+  },
 
+  {
+    idUsuario: `usuario1`,
+    nombre: `Daniela`,
+    apellido: `Hernandez`,
+    email: `danielahernandez@ejemplo.com`,
+    celular: `123345634`,
+    contrasena: `12345678`,
+  },
 ];
 
-let nuevousuariopush = {
-        idUsuario: `Usuario2`,
-        nombre: `Paulina`,
-        apellido: `Morales`,
-        email: `paulinaMorales@ejemplo.com`,
-        celular: `123345634`,
-        contrasena: `123456789`      
-    }   
-}
+let usuarioNuevo = {
+    idUsuario: `usuario2`,
+    nombre: `Paulina`,
+    apellido: `Morales`,
+    email: `paulinamorales@ejemplo.com`,
+    celular: `1233456348`,
+    contrasena: `123456789`,
+};
 
-usuariosRegistrados.push(nuevousuariopush);
-console.log(gatos);
-
+usuariosRegistrados.push(usuarioNuevo);
+console.log(usuariosRegistrados);
 
 let btnRegistrarUsuarios = document.getElementById(`btnRegistrarUsuario`);
 
-let btnAgregarUsuarios.addEventListener('click', function(){
-    let idUsuario= document.getElementById('idUsuario').value;
-    let nombre= document.getElementById('nombreUsuario').value;
-    let apellido= document.getElementById('apellidoUsuario').value;
-    let email= document.getElementById('emailUsuario').value;
-    let celular= document.getElementById('celularUsuario').value;
-    let contrasena= document.getElementById('contrasenaUsuario').value;
+btnAgregarUsuarios.addEventListener("click", function () {
+  let idUsuario = document
+    .getElementById("idUsuario")
+    .value.trim()
+    .toLowerCase();
+  let nombre = document.getElementById("nombreUsuario").value;
+  let apellido = document.getElementById("apellidoUsuario").value;
+  let email = document
+    .getElementById("emailUsuario")
+    .value.trim()
+    .toLowerCase();
+  let celular = document.getElementById("celularUsuario").value;
+  let contrasena = document
+    .getElementById("contrasenaUsuario")
+    .value.trim()
+    .toLowerCase();
 
+  //Validacion de campos obligatorios para que no tenga campos vacios en los
+  if (
+    idUsuario === `` ||
+    nombre === `` ||
+    apellido === `` ||
+    email === `` ||
+    contrasena === ``
+  ) {
+    alert(
+      `Los campos Usuario, Nombre, Apellido, Email y Contraseña son obligatorios`
+    );
+    return;
+  }
 
-}
+  //Segunda validacion en el correo 
+  if ( !email.includes('@') || !email.includes(`.com`) {
+    alert(`El correo electronico debe tener un dominio como @gmail.com u otro`);
+    return;
+  }
 
-)
+// Minimo de carateres en contrasena
+if ( contrasena.length <= 6 ) {
+    alert('La contrasena debe tener minimo 6 caracteres')
+};
+
+});
