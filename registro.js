@@ -70,11 +70,11 @@ btnRegistrarUsuarios.addEventListener("click", function () {
   }
 
   // Que no tenga usuarios repetidos validando que no exista el id y el correo
-  let usuariosrepetidos = usuariosRegistrados.some(function (usuarioNuevo) {
+  let usuariosRepetidos = usuariosRegistrados.some(function (usuarioNuevo) {
     return usuarioNuevo.idUsuario === idUsuario || usuarioNuevo.email === email;
   });
 
-  if (usuariosrepetidos === true) {
+  if (usuariosRepetidos === true) {
     alert(
       `Ya existe un usuario registrado con ese usuario o ese correo electrónico`,
     );

@@ -70,7 +70,7 @@ botonBuscar.addEventListener("click", function () {
   espacioBusqueda.textContent = "";
 
   if (nombreABuscar === "") {
-    espacioBusqueda.textContent = "Escribe el nombre del michi que buscas.";
+    espacioBusqueda.textContent = "Escribe el nombre del Michi que estas buscando.";
     return;
   }
 
@@ -81,7 +81,7 @@ botonBuscar.addEventListener("click", function () {
   });
 
   if (michisEncontrados.length === 0) {
-    espacioBusqueda.textContent = "No encontramos michis con ese nombre.";
+    espacioBusqueda.textContent = "No encontramos Michis con ese nombre.";
     return;
   }
 
