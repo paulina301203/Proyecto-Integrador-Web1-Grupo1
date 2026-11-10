@@ -7,8 +7,7 @@ function esc(str) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
-};
-
+}
 
 (function () {
   "use strict";
@@ -156,6 +155,26 @@ async function obtenerGatos() {
     throw new Error("La API no devolvió una lista de gatos.");
   }
   return datos;
-};
+}
 
-
+function cards(gato) {
+  const img =
+    gato.imagenes && gato.imagenes[0]
+      ? gato.imagenes[0]
+      : window.GatoGoConfig.examplePhoto;
+  return `
+    <article class="card cat">
+      <a class="image-wrap" href="captura.html?id=${esc(gato.id)}" aria-label="Ver captura de ${esc(gato.Nombre_Gato)}">
+        <img src="${esc(imagen)}" alt="Foto de ${esc(gato.Nombre_Gato)}" loading="lazy">
+      </a>
+      <div class="body">
+        <div class="top">
+          <h2>${esc(gato.Nombre_Gato)}</h2>
+          <span class="chip">${esc(gato.Color)}</span>
+        </div>
+        <p class="desc">${esc(gato.Descripcion)}</p>
+        <a class="btn btn-outline" href="captura.html?id=${esc(gato.id)}">Ver captura</a>
+      </div>
+    </article>
+  `;
+}
