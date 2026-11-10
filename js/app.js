@@ -1,3 +1,13 @@
+// Transforma caracteres especiales en texto plano inofensivo para el navegador
+function esc(str) {
+  if (str === null || str === undefined) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+};
 
 
 (function () {
@@ -131,8 +141,21 @@
   }
 })();
 
+// Consultar los datos de la API y la toma de errores
 async function obtenerGatos() {
   const url = window.GatoGoConfig.api.gatos;
+
   const respuesta = await fetch(url);
-  if
-}
+
+  if (!respuesta.ok) {
+    throw new Error(`Error HTTP: ${respuesta.status}`);
+  }
+  const datos = await respuesta.json();
+
+  if (!Array.isArray(datos)) {
+    throw new Error("La API no devolvió una lista de gatos.");
+  }
+  return datos;
+};
+
+
