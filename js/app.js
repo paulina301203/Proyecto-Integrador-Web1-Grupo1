@@ -1,3 +1,13 @@
+// Transforma caracteres especiales en texto plano inofensivo para el navegador
+function esc(str) {
+  if (str === null || str === undefined) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 
 (function () {
   "use strict";
@@ -33,13 +43,17 @@
   ) ?? null;
 }
   function esc(value) {
-    return String(value ?? "").replace(/[&<>"']/g, (c) => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;"
-    })[c]);
+    return String(value ?? "").replace(
+      /[&<>"']/g,
+      (c) =>
+        ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        })[c],
+    );
   }
 
   function nav() {
@@ -82,11 +96,13 @@
 
             ${link("home.html", "Inicio", page === "home")}
 
-            ${link("capturas.html", "Capturas",
-              page === "capturas" || page === "captura")}
+            ${link(
+              "capturas.html",
+              "Capturas",
+              page === "capturas" || page === "captura",
+            )}
 
-            ${link("registrar.html", "Registrar gato",
-              page === "registrar")}
+            ${link("registrar.html", "Registrar gato", page === "registrar")}
 
             <div class="auth">
               ${s
@@ -157,19 +173,8 @@
       mensaje.textContent = "Consultando usuario...";
 
       try {
-        const usuarios = await obtenerUsuarios();
+        const usuario = await validarUsuario(correo, contrasena);
       
-        if (!Array.isArray(usuarios)) {
-          mensaje.textContent =
-            "No se pudieron consultar los usuarios. Intenta nuevamente.";
-          return;
-        }
-        const usuario = usuarios.find((u) =>
-          u &&
-          String(u.email ?? "").trim().toLowerCase() === correo &&
-          u.password === contrasena
-        );
-
         if (!usuario) {
           mensaje.textContent = "Correo o contraseña incorrectos.";
           return;
@@ -290,3 +295,117 @@ function registro() {
 
 })();;
 
+// Consultar los datos de la API y la toma de errores
+async function obtenerGatos() {
+  const url = window.GatoGoConfig.api.gatos;
+
+  const respuesta = await fetch(url);
+
+  if (!respuesta.ok) {
+    throw new Error(`Error HTTP: ${respuesta.status}`);
+  }
+  const datos = await respuesta.json();
+
+  if (!Array.isArray(datos)) {
+    throw new Error("La API no devolvió una lista de gatos.");
+  }
+  return datos;
+}
+
+// Obtener lo datos de la API para las tarejtas
+async function datosAPI() {
+  const [datosGatos, datosAvistamientos, datosUbicaciones] = await Promise.all([
+    fetch(window.GatoGoConfig.api.gatos),
+    fetch(window.GatoGoConfig.api.Avistamientos),
+    fetch(window.GatoGoConfig.api.Ubicaciones),
+  ]);
+  if (!datosGatos.ok || !datosAvistamientos.ok || !datosUbicaciones.ok) {
+    throw new Error("Error al consultar una o más APIs de MockAPI.");
+  }
+
+  // convertirmos datos
+  const gatos = await datosGatos.json();
+  const avistamientos = await datosAvistamientos.json();
+  const ubicaciones = await datosUbicaciones.json();
+
+  // copiamos el arreglo gatos
+  return gatos.map((gato) => {
+    //busqueda del gato en especifico relacionado por id
+    const historial = avistamientos.filter((a) => a.id_gato === gato.id);
+
+    const ultimoSighting = historial[historial.length - 1];
+    let ubicacionDetalle = null;
+
+    if (ultimoSighting) {
+      // Buscamos el objeto de ubicación que coincida con la llave foránea
+      ubicacionDetalle = ubicaciones.find(
+        (u) =>
+          u.Idubicacion === ultimoSighting.id_ubicacion ||
+          u.id === ultimoSighting.id_ubicacion,
+      );
+    }
+
+    return {
+      ...gato,
+      totalAvistamientos: historial.length,
+      ultimaFecha: ultimoSighting ? ultimoSighting.fecha : null,
+      ultimaUbicacion: ubicacionDetalle,
+    };
+  });
+}
+
+function cards(gato) {
+  const imagen =
+    gato.imagenes && gato.imagenes[0]
+      ? gato.imagenes[0]
+      : window.GatoGoConfig.examplePhoto;
+
+  const esFotoEjemplo = imagen === window.GatoGoConfig.examplePhoto;
+
+  // Lógica de formateo condicional para la tarjeta
+  const textoUbicacion = gato.ultimaUbicacion
+    ? `${gato.ultimaUbicacion.Barrio}, ${gato.ultimaUbicacion.Ciudad}`
+    : "Sin avistamientos";
+
+  const textoMeta =
+    gato.totalAvistamientos > 0
+      ? `${gato.totalAvistamientos} avistamiento(s) · ${gato.ultimaFecha}`
+      : "0 avistamientos";
+
+  return `
+    <article class="card cat">
+      <a class="image-wrap" href="captura.html?id=${esc(gato.id)}" aria-label="Ver captura de ${esc(gato.Nombre_Gato)}">
+        <img src="${esc(imagen)}" alt="Foto de ${esc(gato.Nombre_Gato)}" loading="lazy">
+      </a>
+      <div class="body">
+        <div class="top">
+          <h2>${esc(gato.Nombre_Gato)}</h2>
+          <span class="chip">${esc(gato.Color)}</span>
+        </div>
+        <p class="desc">${esc(gato.Descripcion)}</p>
+        <a class="btn btn-outline" href="captura.html?id=${esc(gato.id)}">Ver captura</a>
+      </div>
+    </article>
+  `;
+}
+
+async function cargarCards() {
+  const contenedor = document.querySelector("#list");
+
+  try {
+    contenedor.innerHTML = '<p class="status">Cargando capturas...</p>';
+
+    const gatosCompletos = await obtenerDatosCompletos();
+
+    const htmlTarjetas = gatosCompletos.map((gato) => cards(gato)).join("");
+
+    contenedor.innerHTML = htmlTarjetas;
+  } catch (error) {
+    contenedor.innerHTML = `<p class="status error">Hubo un problema al cargar los gatos: ${esc(error.message)}</p>`;
+  }
+}
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", cargarCards);
+} else {
+  cargarCards();
+}
