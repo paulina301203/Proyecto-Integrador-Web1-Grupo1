@@ -4,7 +4,6 @@
 
   const sessionKey = "gatogo_api_demo_session";
 
-  // Obtener la sesión del usuario
   function session() {
     try {
       return JSON.parse(sessionStorage.getItem(sessionKey)) || null;
@@ -13,7 +12,26 @@
     }
   }
 
-  // Evitar que el nombre del usuario se interprete como HTML
+  async function validarUsuario(correo, contrasena) {
+  const email = correo.trim().toLowerCase();
+  const url = new URL(
+    "https://6ae601ec877d34ccafc29a11.mockapi.io/gatogousers/user"
+  );
+  url.searchParams.set("email", email);
+
+  const respuesta = await fetch(url);
+
+  if (respuesta.status === 404) return null;
+  if (!respuesta.ok) throw new Error("No se pudo consultar la API de usuarios.");
+
+  const usuarios = await respuesta.json();
+
+  return usuarios.find(
+    (usuario) =>
+      usuario.email?.trim().toLowerCase() === email &&
+      usuario.password === contrasena
+  ) ?? null;
+}
   function esc(value) {
     return String(value ?? "").replace(/[&<>"']/g, (c) => ({
       "&": "&amp;",
@@ -24,7 +42,6 @@
     })[c]);
   }
 
-  // Crear e insertar la barra de navegación
   function nav() {
     const s = session();
     const page = document.body.dataset.page;
@@ -114,8 +131,6 @@
     }
   }
 
-  // Ejecutar cuando el HTML esté listo
-  // Activar el inicio de sesión únicamente en login.html
   function login() {
     if (document.body.dataset.page !== "login") return;
 
@@ -124,7 +139,6 @@
     const boton = formulario.querySelector('button[type="submit"]');
 
     formulario.addEventListener("submit", async (event) => {
-      // Evitar que el formulario recargue la página
       event.preventDefault();
 
       if (boton.disabled || !formulario.reportValidity()) return;
@@ -134,7 +148,6 @@
         .value.trim()
         .toLowerCase();
 
-      // La contraseña conserva sus mayúsculas y espacios
       const contrasena = formulario.elements
         .namedItem("password")
         .value;
@@ -144,7 +157,6 @@
       mensaje.textContent = "Consultando usuario...";
 
       try {
-        // Consultar la API con la función que tienes en api.js
         const usuarios = await obtenerUsuarios();
       
         if (!Array.isArray(usuarios)) {
@@ -152,8 +164,6 @@
             "No se pudieron consultar los usuarios. Intenta nuevamente.";
           return;
         }
-
-        // Buscar un usuario cuyo correo y contraseña coincidan
         const usuario = usuarios.find((u) =>
           u &&
           String(u.email ?? "").trim().toLowerCase() === correo &&
@@ -165,7 +175,6 @@
           return;
         }
 
-        // Guardar solo los datos que necesita el menú
         const datosSesion = {
           id: usuario.id_User,
           name: usuario.name,
@@ -179,7 +188,6 @@
 
         formulario.elements.namedItem("password").value = "";
 
-        // Al abrir Inicio, nav() leerá la sesión guardada
         window.location.href = "home.html";
 
       } catch (error) {
@@ -193,7 +201,6 @@
     });
   }
 
-  // Registrar una cuenta desde registro.html
 function registro() {
   if (document.body.dataset.page !== "registro") return;
 
