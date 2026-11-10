@@ -1,1 +1,86 @@
-<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>GatoGo · Avistamientos felinos — GatoGo</title><meta name="description" content="Registra gatos y consulta nuevos avistamientos."><meta property="og:title" content="GatoGo · Avistamientos felinos — GatoGo"><meta property="og:description" content="Registra gatos y consulta nuevos avistamientos."><meta property="og:type" content="website"><meta name="twitter:card" content="summary_large_image"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet"><link rel="stylesheet" href="css/styles.css"></head><body data-page="home"><main><section class="hero"><div class="container"><p class="eyebrow">Exploración felina</p><h1>GatoGo.<br>Una ciudad,<br><em>muchos encuentros.</em></h1><p>Cada gato tiene una historia. Registra los que encuentras y vuelve a descubrirlos en tu colección.</p><div class="actions"><a class="btn btn-primary" href="registrar.html">Registrar gato →</a><a class="btn btn-outline" href="capturas.html">Buscar capturas</a></div><div class="stats"><div><b id="s-cats">—</b><small>Gatos registrados</small></div><div><b id="s-sightings">—</b><small>Avistamientos</small></div></div></div></section><section class="block"><div class="container"><h2 class="section-title">¿Cómo jugar?</h2><div class="steps"><a href="registro.html" class="step"><h3>Regístrate</h3><p class="muted">Tu cuenta de explorador.</p></a><div class="step"><h3>Avista un gato</h3><p class="muted">Un encuentro en tu barrio.</p></div><a href="registrar.html" class="step"><h3>Regístralo</h3><p class="muted">Su nombre, fotos y ubicación.</p></a><a href="capturas.html" class="step"><h3>Consúltalo</h3><p class="muted">Su historia y nuevos avistamientos.</p></a></div><p id="status" class="status" role="status" aria-live="polite"></p></div></section><section id="ultimas" class="block hidden"><div class="container"><div class="head"><h2 class="section-title">Últimas capturas</h2><a href="capturas.html" class="link">Ver todas →</a></div><div class="grid" id="ultimas-grid"></div></div></section></main><script src="js/config.js"></script><script src="js/domain.js"></script><script src="js/api.js"></script><script src="js/app.js"></script></body></html>
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GatoGo · Avistamientos felinos — GatoGo</title>
+    <meta
+      name="description"
+      content="Registra gatos y consulta nuevos avistamientos."
+    />
+    <meta
+      property="og:title"
+      content="GatoGo · Avistamientos felinos — GatoGo"
+    />
+    <meta
+      property="og:description"
+      content="Registra gatos y consulta nuevos avistamientos."
+    />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Work+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body data-page="home">
+    <main>
+      <section class="hero">
+        <div class="container">
+          <p class="eyebrow">Exploración felina</p>
+          <h1>GatoGo.<br />Una ciudad,<br /><em>muchos encuentros.</em></h1>
+          <p>
+            Cada gato tiene una historia. Registra los que encuentras y vuelve a
+            descubrirlos en tu colección.
+          </p>
+          <div class="actions">
+            <a class="btn btn-primary" href="registrar.html">Registrar gato →</a
+            ><a class="btn btn-outline" href="capturas.html">Buscar capturas</a>
+          </div>
+          <div class="stats">
+            <div><b id="s-cats">—</b><small>Gatos registrados</small></div>
+            <div><b id="s-sightings">—</b><small>Avistamientos</small></div>
+          </div>
+        </div>
+      </section>
+      <section class="block">
+        <div class="container">
+          <h2 class="section-title">¿Cómo jugar?</h2>
+          <div class="steps">
+            <a href="registro.html" class="step"
+              ><h3>Regístrate</h3>
+              <p class="muted">Tu cuenta de explorador.</p></a
+            >
+            <div class="step">
+              <h3>Avista un gato</h3>
+              <p class="muted">Un encuentro en tu barrio.</p>
+            </div>
+            <a href="registrar.html" class="step"
+              ><h3>Regístralo</h3>
+              <p class="muted">Su nombre, fotos y ubicación.</p></a
+            ><a href="capturas.html" class="step"
+              ><h3>Consúltalo</h3>
+              <p class="muted">Su historia y nuevos avistamientos.</p></a
+            >
+          </div>
+          <p id="status" class="status" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+      <section id="ultimas" class="block hidden">
+        <div class="container">
+          <div class="head">
+            <h2 class="section-title">Últimas capturas</h2>
+            <a href="capturas.html" class="link">Ver todas →</a>
+          </div>
+          <div class="grid" id="ultimas-grid"></div>
+        </div>
+      </section>
+    </main>
+    <script src="js/config.js"></script>
+    <script src="js/domain.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>

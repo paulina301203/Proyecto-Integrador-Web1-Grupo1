@@ -1,4 +1,5 @@
 
+
 (function () {
   "use strict";
 
@@ -15,13 +16,17 @@
 
   // Evitar que el nombre del usuario se interprete como HTML
   function esc(value) {
-    return String(value ?? "").replace(/[&<>"']/g, (c) => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;"
-    })[c]);
+    return String(value ?? "").replace(
+      /[&<>"']/g,
+      (c) =>
+        ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        })[c],
+    );
   }
 
   // Crear e insertar la barra de navegación
@@ -65,26 +70,30 @@
 
             ${link("home.html", "Inicio", page === "home")}
 
-            ${link("capturas.html", "Capturas",
-              page === "capturas" || page === "captura")}
+            ${link(
+              "capturas.html",
+              "Capturas",
+              page === "capturas" || page === "captura",
+            )}
 
-            ${link("registrar.html", "Registrar gato",
-              page === "registrar")}
+            ${link("registrar.html", "Registrar gato", page === "registrar")}
 
             <div class="auth">
-              ${s
-                ? `<span class="small">Hola, ${esc(s.name)}</span>
+              ${
+                s
+                  ? `<span class="small">Hola, ${esc(s.name)}</span>
                    <button class="btn btn-outline"
                            type="button"
                            id="logout">
                      Salir
                    </button>`
-                : `<a class="btn btn-outline" href="login.html">
+                  : `<a class="btn btn-outline" href="login.html">
                      Iniciar sesión
                    </a>
                    <a class="btn btn-primary" href="registro.html">
                      Registrarse
-                   </a>`}
+                   </a>`
+              }
             </div>
 
           </nav>
@@ -120,6 +129,10 @@
   } else {
     nav();
   }
-
 })();
 
+async function obtenerGatos() {
+  const url = window.GatoGoConfig.api.gatos;
+  const respuesta = await fetch(url);
+  if
+}
