@@ -364,7 +364,7 @@ function registro() {
         return nuevoUsuario;
       }
       await crearUsuario(datosUsuario);
-      
+
       formulario.reset();
       mensaje.textContent = "Cuenta creada correctamente. ";
 
@@ -385,6 +385,11 @@ function iniciar() {
   nav();
   login();
   registro();
+
+  // Cargar las tarjetas si estamos en Capturas.
+  if (document.querySelector("#list")) {
+    cargarCards();
+  }
 }
 
 if (document.readyState === "loading") {
@@ -424,83 +429,107 @@ async function datosAPI(usuarioId) {
   const avistamientos = await datosAvistamientos.json();
   const ubicaciones = await datosUbicaciones.json();
 
-  const avistamientosUsuario = avistamientos.filter((avistamiento) => {
-    const idAutor =
-      avistamiento.id_usuario ?? avistamiento.id_User ?? avistamiento.userId;
-    return String(idAutor) === String(usuarioId);
-  });
+  const avistamientosUsuario = avistamientos.filter(
+    (avistamiento) => String(avistamiento.id_usuario) === String(usuarioId),
+  );
 
   const gatosDelUsuario = gatos.filter((gato) =>
     avistamientosUsuario.some(
-      (idGato) => String(idGato.id_gato) === String(idGato.id),
+      (avistamiento) => String(avistamiento.id_gato) === String(gato.id_gato),
     ),
   );
 
   return gatosDelUsuario.map((gato) => {
     const historial = avistamientosUsuario
-      .filter((a) => String(a.id_gato) === String(gato.id))
+      .filter(
+        (avistamiento) => String(avistamiento.id_gato) === String(gato.id_gato),
+      )
       .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
     const ultimoSighting = historial[0];
-    let ubicacionDetalle = null;
 
-    if (ultimoSighting) {
-      ubicacionDetalle = ubicaciones.find(
-        (u) =>
-          String(u.Idubicacion ?? u.id) === String(ultimoSighting.id_ubicacion),
-      );
-    }
-    const imagenPrincipal =
-      (gato.imagenes && gato.imagenes[0]) ||
-      (ultimoSighting &&
-        ultimoSighting.imagenes &&
-        ultimoSighting.imagenes[0]) ||
-      window.GatoGoConfig.examplePhoto;
+    const ubicacionDetalle = ultimoSighting
+      ? ubicaciones.find(
+          (ubicacion) =>
+            String(ubicacion.Id_ubicacion) ===
+            String(ultimoSighting.id_ubicacion),
+        ) || null
+      : null;
 
     return {
       ...gato,
+
+      // Información del historial.
       totalAvistamientos: historial.length,
-      ultimaFecha: ultimoSighting ? ultimoSighting.fecha : null,
+      ultimaFecha: ultimoSighting?.fecha ?? null,
       ultimaUbicacion: ubicacionDetalle,
-      imagenPrincipal: imagenPrincipal,
+
+      // Fotografía principal del gato.
+      imagenPrincipal: gato.Foto,
+
+      // Conservamos todos sus avistamientos.
+      historial: historial,
     };
   });
 }
 
 function cards(gato) {
-  const imagen = gato.imagenPrincipal;
+  const imagen =
+    gato.Foto || gato.imagenPrincipal || window.GatoGoConfig.examplePhoto;
+
   const esFotoEjemplo = imagen === window.GatoGoConfig.examplePhoto;
+
+  const ultimoAvistamiento = gato.historial?.[0];
 
   const textoUbicacion = gato.ultimaUbicacion
     ? `${gato.ultimaUbicacion.Barrio}, ${gato.ultimaUbicacion.Ciudad}`
     : "Sin avistamientos";
 
+  const total = gato.totalAvistamientos || 0;
+
   const textoMeta =
-    gato.totalAvistamientos > 0
-      ? `${gato.totalAvistamientos} ${
-          gato.totalAvistamientos === 1 ? "avistamiento" : "avistamientos"
-        } · ${formatearFecha(gato.ultimaFecha)}`
-      : "0 avistamientos";
+    `${total} ${total === 1 ? "avistamiento" : "avistamientos"}` +
+    (gato.ultimaFecha ? ` · ${formatearFecha(gato.ultimaFecha)}` : "");
+
+  const enlace = `captura.html?id=${encodeURIComponent(gato.id_gato)}`;
 
   return `
     <article class="card cat">
-      <a class="image-wrap" href="captura.html?id=${esc(gato.id)}" aria-label="Ver captura de ${esc(gato.Nombre_Gato)}">
-        <img src="${esc(imagen)}" alt="Foto de ${esc(gato.Nombre_Gato)}" loading="lazy">
+
+      <a class="image-wrap"
+         href="${enlace}"
+         aria-label="Ver captura de ${esc(gato.Nombre_Gato)}">
+
+        <img
+          src="${esc(imagen)}"
+          alt="${esc(gato.Nombre_Gato)}"
+          width="1024"
+          height="768"
+          loading="lazy"
+        >
+
         ${esFotoEjemplo ? '<span class="example">Foto de ejemplo</span>' : ""}
+
       </a>
+
       <div class="body">
+
         <div class="top">
           <h2>${esc(gato.Nombre_Gato)}</h2>
           <span class="chip">${esc(gato.Color)}</span>
         </div>
+
         <p class="desc">${esc(gato.Descripcion)}</p>
-        
+
         <p class="loc">${esc(textoUbicacion)}</p>
+
         <p class="meta">${esc(textoMeta)}</p>
-        
-        <a class="btn btn-outline" href="captura.html?id=${esc(gato.id)}">
-          Ver captura <span aria-hidden="true">↗</span>
+
+        <a class="btn btn-outline" href="${enlace}">
+          Ver captura
+          <span aria-hidden="true">↗</span>
         </a>
+
       </div>
     </article>
   `;

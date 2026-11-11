@@ -4,7 +4,7 @@ window.GatoGoConfig = Object.freeze({
     Avistamientos:
       "https://6adcddc4fa5e73d4ab2dc4c2.mockapi.io/api/v1/avistamiento",
     usuarios: "https://6ae601ec877d34ccafc29a11.mockapi.io/gatogousers/user",
-    gatos: "https://6aea852b3d3dd3d37be6b43a.mockapi.io/gatos/Gatos",
+    gatos: "https://6ae601ec877d34ccafc29a11.mockapi.io/gatogousers/Gatos",
   },
   examplePhoto: "img/gato-ejemplo.jpg",
 });
