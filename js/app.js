@@ -226,6 +226,34 @@ function esc(str) {
         return;
       }
 
+      const regex = {
+        email:
+          /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/,
+        password:
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,64}$/,
+        cel_phone: /^\+?[1-9]\d{9}$/,
+      };
+
+      if (!regex.email.test(datosUsuario.email)) {
+        mensaje.textContent = "El formato del correo electrónico no es válido.";
+        return;
+      }
+
+      if (!regex.password.test(datosUsuario.password)) {
+        mensaje.textContent =
+          "La contraseña debe tener mínimo 8 caracteres, incluir mayúscula, minúscula, número y un símbolo.";
+          return;
+      }
+
+      if (
+        datosUsuario.cel_phone &&
+        !regex.cel_phone.test(datosUsuario.cel_phone)
+      ) {
+        mensaje.textContent =
+          "El número telefónico debe contener solo dígitos (entre 7 y 15).";
+        return;
+      }
+
       boton.disabled = true;
       boton.textContent = "Registrando...";
       mensaje.textContent = "Comprobando el correo...";
