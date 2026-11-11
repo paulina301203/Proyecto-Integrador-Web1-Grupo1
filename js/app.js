@@ -242,7 +242,7 @@ function esc(str) {
       if (!regex.password.test(datosUsuario.password)) {
         mensaje.textContent =
           "La contraseña debe tener mínimo 8 caracteres, incluir mayúscula, minúscula, número y un símbolo.";
-          return;
+        return;
       }
 
       if (
@@ -256,18 +256,38 @@ function esc(str) {
 
       boton.disabled = true;
       boton.textContent = "Registrando...";
-      mensaje.textContent = "Comprobando el correo...";
+      mensaje.textContent = "Verificando datos locales...";
 
       try {
-        const usuarios = await obtenerUsuarios();
+        const usuariosLocales =
+          JSON.parse(localStorage.getItem("gatogo_usuarios")) || [];
+        const correoExisteLocal = usuariosLocales.some(
+          (usuario) =>
+            usuario &&
+            String(usuario.email ?? "")
+              .trim()
+              .toLocaleLowerCase() === datosUsuario.email,
+        );
 
-        if (!Array.isArray(usuarios)) {
+        if (correoExisteLocal) {
+          mensaje.textContent =
+            "Ese correo ya está registrado localmente. Inicia sesión.";
+          return;
+        }
+        const urlBusqueda = new URL(window.GatoGoConfig.api.usuarios);
+        urlBusqueda.searchParams.set("email", datosUsuario.email);
+
+        const respuesta = await fetch(urlBusqueda);
+
+        if (!respuesta.ok) {
           mensaje.textContent =
             "No se pudo consultar la API. Intenta nuevamente.";
           return;
         }
 
-        const correoExiste = usuarios.some(
+        const usuariosAPI = await respuesta.json();
+
+        const correoExisteAPI = usuariosAPI.some(
           (usuario) =>
             usuario &&
             String(usuario.email ?? "")
@@ -275,14 +295,39 @@ function esc(str) {
               .toLowerCase() === datosUsuario.email,
         );
 
-        if (correoExiste) {
-          mensaje.textContent = "Ese correo ya está registrado. Inicia sesión.";
+        if (correoExisteAPI) {
+          mensaje.textContent =
+            "Ese correo ya está registrado en la base de datos. Inicia sesión.";
           return;
         }
 
         mensaje.textContent = "Guardando tu cuenta...";
 
-        await crearUsuario(datosUsuario);
+        async function crearUsuario(datosUsuario) {
+          const usuariosLocales =
+            JSON.parse(localStorage.getItem("gatogo_usuarios")) || [];
+
+          const idUnico =
+            window.crypto && crypto.randomUUID
+              ? crypto.randomUUID()
+              : Date.now().toString(36) +
+                Math.random().toString(36).substring(2);
+
+          const nuevoUsuario = {
+            id: idUnico,
+            ...datosUsuario,
+            createdAt: new Date().toISOString(), 
+          };
+
+          usuariosLocales.push(nuevoUsuario);
+
+          localStorage.setItem(
+            "gatogo_usuarios",
+            JSON.stringify(usuariosLocales),
+          );
+
+          return nuevoUsuario;
+        }
 
         formulario.reset();
         mensaje.textContent = "Cuenta creada correctamente. ";
@@ -295,8 +340,8 @@ function esc(str) {
         mensaje.textContent =
           "No se pudo confirmar el registro. Intenta iniciar sesión antes de volver a registrarte.";
       } finally {
-        boton.disabled = false;
         boton.textContent = "Registrarme";
+        boton.disabled = false;
       }
     });
   }
