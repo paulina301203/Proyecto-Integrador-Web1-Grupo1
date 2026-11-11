@@ -316,7 +316,7 @@ function esc(str) {
           const nuevoUsuario = {
             id: idUnico,
             ...datosUsuario,
-            createdAt: new Date().toISOString(), 
+            createdAt: new Date().toISOString(),
           };
 
           usuariosLocales.push(nuevoUsuario);
