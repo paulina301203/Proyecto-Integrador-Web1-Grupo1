@@ -376,6 +376,7 @@ function cards(gato) {
     <article class="card cat">
       <a class="image-wrap" href="captura.html?id=${esc(gato.id)}" aria-label="Ver captura de ${esc(gato.Nombre_Gato)}">
         <img src="${esc(imagen)}" alt="Foto de ${esc(gato.Nombre_Gato)}" loading="lazy">
+        ${esFotoEjemplo ? '<span class="example">Foto de ejemplo</span>' : ""}
       </a>
       <div class="body">
         <div class="top">
@@ -383,7 +384,13 @@ function cards(gato) {
           <span class="chip">${esc(gato.Color)}</span>
         </div>
         <p class="desc">${esc(gato.Descripcion)}</p>
-        <a class="btn btn-outline" href="captura.html?id=${esc(gato.id)}">Ver captura</a>
+        
+        <p class="loc">${esc(textoUbicacion)}</p>
+        <p class="meta">${esc(textoMeta)}</p>
+        
+        <a class="btn btn-outline" href="captura.html?id=${esc(gato.id)}">
+          Ver captura <span aria-hidden="true">↗</span>
+        </a>
       </div>
     </article>
   `;
@@ -395,7 +402,7 @@ async function cargarCards() {
   try {
     contenedor.innerHTML = '<p class="status">Cargando capturas...</p>';
 
-    const gatosCompletos = await obtenerDatosCompletos();
+    const gatosCompletos = await datosAPI();
 
     const htmlTarjetas = gatosCompletos.map((gato) => cards(gato)).join("");
 
@@ -408,4 +415,41 @@ if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", cargarCards);
 } else {
   cargarCards();
+};
+
+async function cargarDetalle() {
+  const contenedor = document.querySelector("#capture");
+  
+  // 1. Escaneamos la etiqueta de la URL (todo lo que va después del '?')
+  const parametros = new URLSearchParams(window.location.search);
+  
+  // 2. Extraemos específicamente el valor de la variable "id"
+  const idGato = parametros.get("id");
+
+  // 3. Validación de seguridad (Early Return)
+  if (!idGato) {
+    contenedor.innerHTML = '<p class="status error">Selecciona una captura para consultar su información.</p>';
+    return; // Detiene la función aquí mismo
+  }
+
+  try {
+    contenedor.innerHTML = '<p class="status">Cargando captura...</p>';
+    
+    // 4. Aquí haremos la petición a la API pidiendo SOLO el gato con ese ID
+    // const respuesta = await fetch(`${window.GatoGoConfig.api.gatos}/${idGato}`);
+    // const gato = await respuesta.json();
+    
+    // Por ahora, solo confirmaremos que lo leímos bien:
+    contenedor.innerHTML = `<h1>Ficha técnica del gato #${esc(idGato)}</h1>`;
+
+  } catch (error) {
+    contenedor.innerHTML = `<p class="status error">Error: ${esc(error.message)}</p>`;
+  }
+}
+
+// Ejecutar cuando se cargue la página
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", cargarDetalle);
+} else {
+  cargarDetalle();
 }
