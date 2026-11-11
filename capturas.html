@@ -38,9 +38,23 @@
           class="input" 
           aria-label="Buscar capturas"
           type="search"
-          placeholder="Buscar por nombre, color, ciudad, barrio o dirección…"
-        /><select id="color" class="input" aria-label="Filtrar por color">
+          placeholder="Buscar capturas (próximamente)…"
+        />
+        <select id="color" class="input" aria-label="Filtrar por color">
           <option value="">Todos los colores</option>
+          <option value="Negro">Negro</option>
+          <option value="Blanco">Blanco</option>
+          <option value="Naranja">Naranja</option>
+          <option value="Gris">Gris</option>
+          <option value="Atigrado">Atigrado</option>
+          <option value="Calicó">Calicó</option>
+          <option value="Siamés">Siamés</option>
+          <option value="Bicolor">Bicolor</option>
+          <option value="Otro">Otro</option>
+        </select>
+        <select id="user-filter" class="input" aria-label="Filtrar capturas">
+          <option value="all">Todas las capturas</option>
+          <option value="mine">Mis capturas</option>
         </select>
       </div>
       <p id="status" class="status" role="status" aria-live="polite"></p>
