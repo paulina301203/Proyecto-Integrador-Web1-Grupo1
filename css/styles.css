@@ -317,11 +317,15 @@ label > span,
   overflow: hidden;
 }
 .cat .image-wrap {
-  aspect-ratio: 4/3;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
   position: relative;
   overflow: hidden;
+  background-color: var(--muted);
 }
 .cat .image-wrap img {
+  display: block;
   height: 100%;
   width: 100%;
   object-fit: cover;
@@ -516,11 +520,16 @@ label > span,
 }
 .detail-photo {
   position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 8px;
+  background-color: var(--muted);
 }
 .detail-photo > img {
-  aspect-ratio: 4/3;
+  display: block;
+  aspect-ratio: 4 / 3;
   width: 100%;
-  height: auto;
+  height: 100%;
   object-fit: cover;
   border-radius: 8px;
 }
