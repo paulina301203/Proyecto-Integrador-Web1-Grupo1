@@ -24,31 +24,56 @@ function esc(str) {
 
   async function validarUsuario(correo, contrasena) {
     const email = correo.trim().toLowerCase();
+    const usuariosLocales =
+      JSON.parse(localStorage.getItem("gatogo_usuarios")) || [];
+
+    const usuarioLocal = usuariosLocales.find(
+      (usuario) =>
+        usuario &&
+        String(usuario.email ?? "")
+          .trim()
+          .toLowerCase() === email,
+    );
+
+    if (usuarioLocal) {
+      if (usuarioLocal.password === contrasena) {
+        const { password, ...datosSesion } = usuarioLocal; // Extraemos todo menos el password
+        return { ok: true, usuario: datosSesion };
+      } else {
+        // Si la contraseña falla, cortamos el proceso. No tiene sentido ir a la API.
+        return { ok: false, error: "Correo o contraseña incorrectos" };
+      }
+    }
     const url = new URL(window.GatoGoConfig.api.usuarios);
     url.searchParams.set("email", email);
 
     const respuesta = await fetch(url);
 
-    if (respuesta.status === 404) return null;
-    if (!respuesta.ok)
-      throw new Error("No se pudo consultar la API de usuarios.");
-
-    const usuarios = await respuesta.json();
-
-    const usuario = usuarios.find(
-      (usuario) => usuario.email.trim().toLowerCase() === email,
-    );
-    //Muestra que la contrasena o correo es incorrecta
-    if (!usuario || usuario.password !== contrasena) {
+    if (respuesta.status === 404) {
       return { ok: false, error: "Correo o contraseña incorrectos" };
     }
 
-    const { password, ...datosSesion } = usuario;
+    if (!respuesta.ok) {
+      throw new Error("No se pudo consultar la API de usuarios.");
+    }
 
-    return {
-      ok: true,
-      usuario: datosSesion,
-    };
+    const usuariosAPI = await respuesta.json();
+
+    const usuarioAPI = usuariosAPI.find(
+      (usuario) =>
+        usuario &&
+        String(usuario.email ?? "")
+          .trim()
+          .toLowerCase() === email,
+    );
+
+    if (!usuarioAPI || usuarioAPI.password !== contrasena) {
+      return { ok: false, error: "Correo o contraseña incorrectos" };
+    }
+
+    const { password, ...datosSesion } = usuarioAPI;
+
+    return { ok: true, usuario: datosSesion };
   }
 
   function nav() {
@@ -279,26 +304,26 @@ function esc(str) {
 
         const respuesta = await fetch(urlBusqueda);
 
-        if (!respuesta.ok) {
+        if (respuesta.status === 404) {
+        } else if (!respuesta.ok) {
           mensaje.textContent =
             "No se pudo consultar la API. Intenta nuevamente.";
           return;
-        }
+        } else {
+          const usuariosAPI = await respuesta.json();
+          const correoExisteAPI = usuariosAPI.some(
+            (usuario) =>
+              usuario &&
+              String(usuario.email ?? "")
+                .trim()
+                .toLowerCase() === datosUsuario.email,
+          );
 
-        const usuariosAPI = await respuesta.json();
-
-        const correoExisteAPI = usuariosAPI.some(
-          (usuario) =>
-            usuario &&
-            String(usuario.email ?? "")
-              .trim()
-              .toLowerCase() === datosUsuario.email,
-        );
-
-        if (correoExisteAPI) {
-          mensaje.textContent =
-            "Ese correo ya está registrado en la base de datos. Inicia sesión.";
-          return;
+          if (correoExisteAPI) {
+            mensaje.textContent =
+              "Ese correo ya está registrado en la base de datos. Inicia sesión.";
+            return;
+          }
         }
 
         mensaje.textContent = "Guardando tu cuenta...";
