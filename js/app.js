@@ -23,37 +23,32 @@ function esc(str) {
   }
 
   async function validarUsuario(correo, contrasena) {
-  const email = correo.trim().toLowerCase();
-  const url = new URL(
-    "https://6ae601ec877d34ccafc29a11.mockapi.io/gatogousers/user"
-  );
-  url.searchParams.set("email", email);
+    const email = correo.trim().toLowerCase();
+    const url = new URL(window.GatoGoConfig.api.usuarios);
+    url.searchParams.set("email", email);
 
-  const respuesta = await fetch(url);
+    const respuesta = await fetch(url);
 
-  if (respuesta.status === 404) return null;
-  if (!respuesta.ok) throw new Error("No se pudo consultar la API de usuarios.");
+    if (respuesta.status === 404) return null;
+    if (!respuesta.ok)
+      throw new Error("No se pudo consultar la API de usuarios.");
 
-  const usuarios = await respuesta.json();
+    const usuarios = await respuesta.json();
 
-  return usuarios.find(
-    (usuario) =>
-      usuario.email?.trim().toLowerCase() === email &&
-      usuario.password === contrasena
-  ) ?? null;
-}
-  function esc(value) {
-    return String(value ?? "").replace(
-      /[&<>"']/g,
-      (c) =>
-        ({
-          "&": "&amp;",
-          "<": "&lt;",
-          ">": "&gt;",
-          '"': "&quot;",
-          "'": "&#39;",
-        })[c],
+    const usuario = usuarios.find(
+      (usuario) => usuario.email.trim().toLowerCase() === email,
     );
+    //Muestra que la contrasena o correo es incorrecta
+    if (!usuario || usuario.password !== contrasena) {
+      return { ok: false, error: "Correo o contraseña incorrectos" };
+    }
+
+    const { password, ...datosSesion } = usuario;
+
+    return {
+      ok: true,
+      usuario: datosSesion,
+    };
   }
 
   function nav() {
@@ -105,19 +100,21 @@ function esc(str) {
             ${link("registrar.html", "Registrar gato", page === "registrar")}
 
             <div class="auth">
-              ${s
-                ? `<span class="small">Hola, ${esc(s.name)}</span>
+              ${
+                s
+                  ? `<span class="small">Hola, ${esc(s.name)}</span>
                   <button class="btn btn-outline"
                           type="button"
                           id="logout">
                     Salir
                   </button>`
-                : `<a class="btn btn-outline" href="login.html">
+                  : `<a class="btn btn-outline" href="login.html">
                     Iniciar sesión
                   </a>
                   <a class="btn btn-primary" href="registro.html">
                     Registrarse
-                  </a>`}
+                  </a>`
+              }
             </div>
 
           </nav>
@@ -164,41 +161,37 @@ function esc(str) {
         .value.trim()
         .toLowerCase();
 
-      const contrasena = formulario.elements
-        .namedItem("password")
-        .value;
+      const contrasena = formulario.elements.namedItem("password").value;
 
       boton.disabled = true;
       boton.textContent = "Ingresando...";
       mensaje.textContent = "Consultando usuario...";
 
       try {
-        const usuario = await validarUsuario(correo, contrasena);
-      
-        if (!usuario) {
-          mensaje.textContent = "Correo o contraseña incorrectos.";
+        const respuesta = await validarUsuario(correo, contrasena);
+
+        if (!respuesta.ok) {
+          mensaje.textContent = respuesta.error;
           return;
         }
 
+        //traemos la respuesta
+        const sesion = respuesta.usuario;
+
         const datosSesion = {
-          id: usuario.id_User,
-          name: usuario.name,
-          email: usuario.email
+          id: sesion.id || sesion.id_User,
+          name: sesion.name,
+          email: sesion.email,
         };
 
-        sessionStorage.setItem(
-          sessionKey,
-          JSON.stringify(datosSesion)
-        );
+        sessionStorage.setItem(sessionKey, JSON.stringify(datosSesion));
 
         formulario.elements.namedItem("password").value = "";
 
         window.location.href = "home.html";
-
       } catch (error) {
-        mensaje.textContent =
-          "No se pudo iniciar sesión. Intenta nuevamente.";
-
+        console.error("Error capturado en login:", error);
+        mensaje.textContent = "No se pudo iniciar sesión. Intenta nuevamente.";
       } finally {
         boton.disabled = false;
         boton.textContent = "Iniciar sesión";
@@ -206,94 +199,91 @@ function esc(str) {
     });
   }
 
-function registro() {
-  if (document.body.dataset.page !== "registro") return;
+  function registro() {
+    if (document.body.dataset.page !== "registro") return;
 
-  const formulario = document.querySelector("#auth-form");
-  const mensaje = document.querySelector("#status");
-  const boton = formulario.querySelector('button[type="submit"]');
+    const formulario = document.querySelector("#auth-form");
+    const mensaje = document.querySelector("#status");
+    const boton = formulario.querySelector('button[type="submit"]');
 
-  formulario.addEventListener("submit", async (event) => {
-    event.preventDefault();
+    formulario.addEventListener("submit", async (event) => {
+      event.preventDefault();
 
-    if (boton.disabled || !formulario.reportValidity()) return;
+      if (boton.disabled || !formulario.reportValidity()) return;
 
-    const campo = (nombre) =>
-      formulario.elements.namedItem(nombre).value;
+      const campo = (nombre) => formulario.elements.namedItem(nombre).value;
 
-    const datosUsuario = {
-      name: campo("name").trim(),
-      last_name: campo("last_name").trim(),
-      email: campo("email").trim().toLowerCase(),
-      cel_phone: campo("cel_phone").trim(),
-      password: campo("password")
-    };
+      const datosUsuario = {
+        name: campo("name").trim(),
+        last_name: campo("last_name").trim(),
+        email: campo("email").trim().toLowerCase(),
+        cel_phone: campo("cel_phone").trim(),
+        password: campo("password"),
+      };
 
-    if (!datosUsuario.name || !datosUsuario.last_name) {
-      mensaje.textContent = "Escribe tu nombre y apellido.";
-      return;
-    }
-
-    boton.disabled = true;
-    boton.textContent = "Registrando...";
-    mensaje.textContent = "Comprobando el correo...";
-
-    try {
-      const usuarios = await obtenerUsuarios();
-
-      if (!Array.isArray(usuarios)) {
-        mensaje.textContent =
-          "No se pudo consultar la API. Intenta nuevamente.";
+      if (!datosUsuario.name || !datosUsuario.last_name) {
+        mensaje.textContent = "Escribe tu nombre y apellido.";
         return;
       }
 
-      const correoExiste = usuarios.some((usuario) =>
-        usuario &&
-        String(usuario.email ?? "").trim().toLowerCase() ===
-          datosUsuario.email
-      );
+      boton.disabled = true;
+      boton.textContent = "Registrando...";
+      mensaje.textContent = "Comprobando el correo...";
 
-      if (correoExiste) {
+      try {
+        const usuarios = await obtenerUsuarios();
+
+        if (!Array.isArray(usuarios)) {
+          mensaje.textContent =
+            "No se pudo consultar la API. Intenta nuevamente.";
+          return;
+        }
+
+        const correoExiste = usuarios.some(
+          (usuario) =>
+            usuario &&
+            String(usuario.email ?? "")
+              .trim()
+              .toLowerCase() === datosUsuario.email,
+        );
+
+        if (correoExiste) {
+          mensaje.textContent = "Ese correo ya está registrado. Inicia sesión.";
+          return;
+        }
+
+        mensaje.textContent = "Guardando tu cuenta...";
+
+        await crearUsuario(datosUsuario);
+
+        formulario.reset();
+        mensaje.textContent = "Cuenta creada correctamente. ";
+
+        const enlace = document.createElement("a");
+        enlace.href = "login.html";
+        enlace.textContent = "Ahora puedes iniciar sesión.";
+        mensaje.appendChild(enlace);
+      } catch (error) {
         mensaje.textContent =
-          "Ese correo ya está registrado. Inicia sesión.";
-        return;
+          "No se pudo confirmar el registro. Intenta iniciar sesión antes de volver a registrarte.";
+      } finally {
+        boton.disabled = false;
+        boton.textContent = "Registrarme";
       }
-
-      mensaje.textContent = "Guardando tu cuenta...";
-
-      await crearUsuario(datosUsuario);
-
-      formulario.reset();
-      mensaje.textContent = "Cuenta creada correctamente. ";
-
-      const enlace = document.createElement("a");
-      enlace.href = "login.html";
-      enlace.textContent = "Ahora puedes iniciar sesión.";
-      mensaje.appendChild(enlace);
-
-    } catch (error) {
-      mensaje.textContent =
-        "No se pudo confirmar el registro. Intenta iniciar sesión antes de volver a registrarte.";
-
-    } finally {
-      boton.disabled = false;
-      boton.textContent = "Registrarme";
-    }
-  });
-}
+    });
+  }
   function iniciar() {
-  nav();
-  login();
-  registro();
-}
+    nav();
+    login();
+    registro();
+  }
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", iniciar);
   } else {
     iniciar();
   }
-
-})();;
+})();
 
 // Consultar los datos de la API y la toma de errores
 async function obtenerGatos() {
@@ -398,6 +388,7 @@ function cards(gato) {
 
 async function cargarCards() {
   const contenedor = document.querySelector("#list");
+  if (!contenedor) return;
 
   try {
     contenedor.innerHTML = '<p class="status">Cargando capturas...</p>';
@@ -415,33 +406,34 @@ if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", cargarCards);
 } else {
   cargarCards();
-};
+}
 
 async function cargarDetalle() {
   const contenedor = document.querySelector("#capture");
-  
+  if (!contenedor) return;
+
   // 1. Escaneamos la etiqueta de la URL (todo lo que va después del '?')
   const parametros = new URLSearchParams(window.location.search);
-  
+
   // 2. Extraemos específicamente el valor de la variable "id"
   const idGato = parametros.get("id");
 
   // 3. Validación de seguridad (Early Return)
   if (!idGato) {
-    contenedor.innerHTML = '<p class="status error">Selecciona una captura para consultar su información.</p>';
+    contenedor.innerHTML =
+      '<p class="status error">Selecciona una captura para consultar su información.</p>';
     return; // Detiene la función aquí mismo
   }
 
   try {
     contenedor.innerHTML = '<p class="status">Cargando captura...</p>';
-    
+
     // 4. Aquí haremos la petición a la API pidiendo SOLO el gato con ese ID
     // const respuesta = await fetch(`${window.GatoGoConfig.api.gatos}/${idGato}`);
     // const gato = await respuesta.json();
-    
+
     // Por ahora, solo confirmaremos que lo leímos bien:
     contenedor.innerHTML = `<h1>Ficha técnica del gato #${esc(idGato)}</h1>`;
-
   } catch (error) {
     contenedor.innerHTML = `<p class="status error">Error: ${esc(error.message)}</p>`;
   }
