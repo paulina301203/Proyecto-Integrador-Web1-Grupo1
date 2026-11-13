@@ -799,6 +799,8 @@ async function cargarCards() {
 
     coleccionCompletaGatosMemoria = await datosAPI();
 
+    
+
     if (elementoEstadoMensaje) {
       elementoEstadoMensaje.textContent = "";
     }
@@ -1537,5 +1539,20 @@ async function cargarHome() {
     }
   } catch (errorCargaHome) {
     console.error("Error al cargar la página de inicio:", errorCargaHome);
+  }
+}
+
+//Obtener y almacenar los datos de la API Gato
+
+let allCats = [];
+
+async function loadCats() {
+  try {
+    const response = await fetch('https://TU_API_ENDPOINT_DE_MOCKAPI/cats'); // Reemplaza con tu endpoint real
+    allCats = await response.json();
+    renderCats(allCats);
+    updateResultCount(allCats.length);
+  } catch (error) {
+    console.error('Error al consultar la API:', error);
   }
 }
