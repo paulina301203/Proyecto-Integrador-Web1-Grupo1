@@ -783,13 +783,22 @@ async function cargarCards() {
   const elementoConteoResultados = document.querySelector("#result-count");
   const campoBusquedaTexto = document.querySelector("#q");
   const selectElementoColor = document.querySelector("#color");
+  const selectorFiltroUsuario = document.querySelector("#user-filter");
 
   const sesionUsuarioActiva = session();
 
-  // El botón/selector de color se mantiene activo en la interfaz
-  if (selectElementoColor) {
-    selectElementoColor.disabled = false;
-  }
+  const normalizarTexto = (texto) =>
+    String(texto ?? "")
+      .replace(/Ã¡/gi, "á")
+      .replace(/Ã©/gi, "é")
+      .replace(/Ã­/gi, "í")
+      .replace(/Ã³/gi, "ó")
+      .replace(/Ãº/gi, "ú")
+      .replace(/Ã±/gi, "ñ")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim()
+      .toLocaleLowerCase("es");
 
   try {
     if (elementoEstadoMensaje) {
@@ -798,8 +807,6 @@ async function cargarCards() {
     contenedorListaTarjetas.innerHTML = '<p class="status">Cargando capturas...</p>';
 
     coleccionCompletaGatosMemoria = await datosAPI();
-
-    
 
     if (elementoEstadoMensaje) {
       elementoEstadoMensaje.textContent = "";
@@ -836,7 +843,6 @@ async function cargarCards() {
     }
 
     // Botón/selector para filtrar "Todas las capturas" o "Mis capturas" (se mantiene activo)
-    const selectorFiltroUsuario = document.querySelector("#user-filter");
     if (selectorFiltroUsuario) {
       const capturasPertenecientesAlUsuario =
         coleccionCompletaGatosMemoria.filter((gatoParaFiltrar) =>
@@ -861,21 +867,14 @@ async function cargarCards() {
       if (opcionMias) {
         opcionMias.textContent = `Mis capturas (${capturasPertenecientesAlUsuario.length})`;
       }
-
-      selectorFiltroUsuario.addEventListener(
-        "change",
-        filtrarYRenderizarTarjetas,
-      );
     }
 
     function filtrarYRenderizarTarjetas() {
       const opcionFiltroUsuario = selectorFiltroUsuario
         ? selectorFiltroUsuario.value
         : "all";
-
       let listadoGatosFiltrados = coleccionCompletaGatosMemoria;
 
-      // Filtro de capturas: "Todas las capturas" o "Mis capturas" (se mantiene activo)
       if (opcionFiltroUsuario === "mine") {
         if (sesionUsuarioActiva && sesionUsuarioActiva.id) {
           listadoGatosFiltrados = listadoGatosFiltrados.filter(
@@ -891,8 +890,24 @@ async function cargarCards() {
         }
       }
 
-      // La barra de búsqueda (#q) permanece activa en la interfaz para futuras implementaciones;
-      // se eliminó la lógica de filtrado por nombre a petición.
+      const textoBusqueda = normalizarTexto(campoBusquedaTexto?.value);
+      const colorSeleccionado = normalizarTexto(selectElementoColor?.value);
+
+      listadoGatosFiltrados = listadoGatosFiltrados.filter((gatoParaEvaluar) => {
+        const nombreGato = normalizarTexto(
+          gatoParaEvaluar.Nombre_Gato ??
+            gatoParaEvaluar.nombre ??
+            gatoParaEvaluar.name,
+        );
+        const colorGato = normalizarTexto(
+          gatoParaEvaluar.Color ?? gatoParaEvaluar.color,
+        );
+
+        return (
+          nombreGato.includes(textoBusqueda) &&
+          (!colorSeleccionado || colorGato === colorSeleccionado)
+        );
+      });
 
       if (elementoConteoResultados) {
         const sufijoResultado =
@@ -917,8 +932,16 @@ async function cargarCards() {
         } else {
           contenedorListaTarjetas.innerHTML = `
             <div class="empty" style="grid-column: 1 / -1;">
-              <h2>Sin capturas</h2>
-              <p class="muted">No hay gatos disponibles para mostrar.</p>
+              <h2>${
+                textoBusqueda || colorSeleccionado
+                  ? "No se encontraron resultados"
+                  : "Sin capturas"
+              }</h2>
+              <p class="muted">${
+                textoBusqueda || colorSeleccionado
+                  ? "Prueba con otro nombre o color."
+                  : "No hay gatos disponibles para mostrar."
+              }</p>
             </div>
           `;
         }
@@ -930,10 +953,22 @@ async function cargarCards() {
     }
 
     if (campoBusquedaTexto) {
+      campoBusquedaTexto.placeholder = "Buscar por nombre...";
       campoBusquedaTexto.addEventListener("input", filtrarYRenderizarTarjetas);
     }
+    if (selectElementoColor) {
+      selectElementoColor.addEventListener(
+        "change",
+        filtrarYRenderizarTarjetas,
+      );
+    }
+    if (selectorFiltroUsuario) {
+      selectorFiltroUsuario.addEventListener(
+        "change",
+        filtrarYRenderizarTarjetas,
+      );
+    }
 
-    // Renderizar inicialmente
     filtrarYRenderizarTarjetas();
   } catch (errorCapturado) {
     console.error("Error al cargar las capturas:", errorCapturado);
